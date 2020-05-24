@@ -2,17 +2,21 @@ import React, { Component } from "react";
 import { getMovies } from "../services/fakeMovieService";
 import Like from "../common/like";
 import Pagination from "../common/pagination";
+import { paginate } from "../utils/paginate";
 
 class Movies extends Component {
   state = {
     movies: getMovies(),
+    currentPage: 1,
+    pageSize: 4,
   };
 
   handleDelete = (movie) => {
-    const movies = [...this.state.movies];
-    let index = movies.indexOf(movies.find((m) => m._id === movie._id));
-    movies.splice(index, 1);
-    this.setState({ movies });
+    let { currentPage, pageSize } = this.state;
+    const movies = this.state.movies.filter((m) => m._id !== movie._id);
+    if (currentPage > Math.ceil(movies.length / pageSize))
+      currentPage = currentPage - 1;
+    this.setState({ movies, currentPage });
   };
 
   handleLikeClick = (movie) => {
@@ -24,11 +28,15 @@ class Movies extends Component {
   };
 
   handlePagination = (currentPage) => {
-    console.log(currentPage);
+    this.setState({ currentPage });
   };
 
   render() {
     const { length: count } = this.state.movies;
+    const { currentPage, pageSize, movies: allMovies } = this.state;
+
+    const movies = paginate(allMovies, currentPage, pageSize);
+
     if (!count)
       return (
         <p style={{ fontSize: "20px" }}>There are no movies in the database.</p>
@@ -50,7 +58,7 @@ class Movies extends Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.movies.map((movie) => (
+            {movies.map((movie) => (
               <tr key={movie._id}>
                 <td>{movie.title}</td>
                 <td>{movie.genre.name}</td>
@@ -78,9 +86,9 @@ class Movies extends Component {
         </table>
         <Pagination
           onPageChange={this.handlePagination}
-          currentPage={2}
-          itemsCount={5}
-          pageSize={4}
+          currentPage={currentPage}
+          itemsCount={count}
+          pageSize={pageSize}
         />
       </React.Fragment>
     );
