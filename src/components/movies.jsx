@@ -5,55 +5,26 @@ import Pagination from "../common/pagination";
 
 class Movies extends Component {
   state = {
-    movies: [],
-    pageNumber: 1,
-    moviesList: getMovies(),
-  };
-
-  componentDidMount = () => {
-    this.handlePagination(1);
-  };
-
-  getTotalPageCount = (moviesList = this.state.moviesList) => {
-    const { length } = moviesList;
-    return length % 4 === 0 ? length / 4 : Math.floor(length / 4) + 1;
+    movies: getMovies(),
   };
 
   handleDelete = (movie) => {
-    const moviesList = [...this.state.moviesList];
-    let index = moviesList.indexOf(moviesList.find((m) => m._id === movie._id));
-    moviesList.splice(index, 1);
-    this.handlePagination(this.state.pageNumber, moviesList);
+    const movies = [...this.state.movies];
+    let index = movies.indexOf(movies.find((m) => m._id === movie._id));
+    movies.splice(index, 1);
+    this.setState({ movies });
   };
 
   handleLikeClick = (movie) => {
-    const moviesList = [...this.state.moviesList];
-    let index = moviesList.indexOf(movie);
-    moviesList[index] = { ...moviesList[index] };
-    moviesList[index].like = !moviesList[index].like;
-
     const movies = [...this.state.movies];
-    index = movies.indexOf(movie);
+    const index = movies.indexOf(movie);
     movies[index] = { ...movies[index] };
     movies[index].like = !movies[index].like;
-    this.setState({ movies, moviesList });
+    this.setState({ movies });
   };
 
-  handlePagination = (
-    pageNumber = this.state.pageNumber,
-    moviesList = this.state.moviesList
-  ) => {
-    if (moviesList.length && pageNumber > this.getTotalPageCount(moviesList))
-      pageNumber--; // for case when single row is present in page other than page 1
-    const movies = [];
-    const offset = (pageNumber - 1) * 4 + 1;
-    for (
-      let index = offset - 1;
-      index < offset + 3 && index < moviesList.length;
-      index++
-    )
-      movies.push(moviesList[index]);
-    this.setState({ movies, pageNumber, moviesList });
+  handlePagination = (currentPage) => {
+    console.log(currentPage);
   };
 
   render() {
@@ -106,9 +77,10 @@ class Movies extends Component {
           </tbody>
         </table>
         <Pagination
-          onClick={this.handlePagination}
-          pageNumber={this.state.pageNumber}
-          pages={this.getTotalPageCount()}
+          onPageChange={this.handlePagination}
+          currentPage={2}
+          itemsCount={5}
+          pageSize={4}
         />
       </React.Fragment>
     );
