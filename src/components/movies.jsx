@@ -21,9 +21,9 @@ class Movies extends Component {
 
   handleDelete = (movie) => {
     const moviesList = [...this.state.moviesList];
-    let index = moviesList.indexOf(movie);
+    let index = moviesList.indexOf(moviesList.find((m) => m._id === movie._id));
     moviesList.splice(index, 1);
-    this.handlePagination(null, moviesList);
+    this.handlePagination(this.state.pageNumber, moviesList);
   };
 
   handleLikeClick = (movie) => {
