@@ -16,7 +16,7 @@ const Pagination = (props) => {
             onClick={() => onPageChange(item)}
             className={item === currentPage ? "page-item active" : "page-item"}
           >
-            <a className="page-link">{item}</a>
+            <span className="page-link">{item}</span>
           </li>
         ))}
       </ul>

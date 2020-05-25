@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { getMovies } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
-import Like from "../common/like";
 import Pagination from "../common/pagination";
 import Filter from "../common/filter";
+import MoviesTable from "./moviesTable";
 import { paginate } from "../utils/paginate";
+import _ from "lodash";
 
 class Movies extends Component {
   state = {
@@ -13,6 +14,7 @@ class Movies extends Component {
     currentPage: 1,
     pageSize: 4,
     activeFilter: { _id: null, name: "All Genres" },
+    sortColumn: { path: "title", order: "asc" },
   };
 
   componentDidMount = () => {
@@ -44,6 +46,10 @@ class Movies extends Component {
     this.setState({ currentPage: 1, activeFilter });
   };
 
+  handleSort = (sortColumn) => {
+    this.setState({ sortColumn });
+  };
+
   render() {
     const {
       currentPage,
@@ -51,6 +57,7 @@ class Movies extends Component {
       movies: allMovies,
       activeFilter,
       genres,
+      sortColumn,
     } = this.state;
 
     let filteredMovies = activeFilter._id
@@ -59,73 +66,46 @@ class Movies extends Component {
 
     const { length: count } = filteredMovies;
 
-    const movies = paginate(filteredMovies, currentPage, pageSize);
+    const sortedMovies = _.orderBy(
+      filteredMovies,
+      [sortColumn.path],
+      [sortColumn.order]
+    );
+
+    const movies = paginate(sortedMovies, currentPage, pageSize);
 
     if (!allMovies.length)
       return (
         <p style={{ fontSize: "20px" }}>There are no movies in the database.</p>
       );
     return (
-      <React.Fragment>
-        <div className="row">
-          <div className="col-2">
-            <Filter
-              onFilterApply={this.handleFilter}
-              activeFilter={this.state.activeFilter}
-              listItems={[{ _id: null, name: "All Genres" }, ...genres]}
-            />
-          </div>
-          <div className="col">
-            <p style={{ fontSize: "20px" }}>
-              Showing {count} movies in the database.
-            </p>
-            <table className="table">
-              <thead className="thead-light">
-                <tr>
-                  <th>Title</th>
-                  <th>Genre</th>
-                  <th>Stock</th>
-                  <th>Rate</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {movies.map((movie) => (
-                  <tr key={movie._id}>
-                    <td>{movie.title}</td>
-                    <td>{movie.genre.name}</td>
-                    <td>{movie.numberInStock}</td>
-                    <td>{movie.dailyRentalRate}</td>
-                    <td>
-                      <Like
-                        onClick={() => this.handleLikeClick(movie)}
-                        like={movie.like}
-                      />
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => {
-                          this.handleDelete(movie);
-                        }}
-                        className="btn btn-danger btn-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <Pagination
-              onPageChange={this.handlePagination}
-              currentPage={currentPage}
-              itemsCount={count}
-              pageSize={pageSize}
-            />
-          </div>
+      <div className="row">
+        <div className="col-2">
+          <Filter
+            onFilterApply={this.handleFilter}
+            activeFilter={this.state.activeFilter}
+            listItems={[{ _id: null, name: "All Genres" }, ...genres]}
+          />
         </div>
-      </React.Fragment>
+        <div className="col">
+          <p style={{ fontSize: "20px" }}>
+            Showing {count} movies in the database.
+          </p>
+          <MoviesTable
+            movies={movies}
+            onLike={this.handleLikeClick}
+            onDelete={this.handleDelete}
+            onSort={this.handleSort}
+            sortColumn={this.state.sortColumn}
+          />
+          <Pagination
+            onPageChange={this.handlePagination}
+            currentPage={currentPage}
+            itemsCount={count}
+            pageSize={pageSize}
+          />
+        </div>
+      </div>
     );
   }
 }

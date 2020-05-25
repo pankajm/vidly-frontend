@@ -3,7 +3,6 @@ import Movies from "./components/movies";
 
 class App extends Component {
   render() {
-    console.log("app getting called twice");
     return (
       <main className="container">
         <Movies />
