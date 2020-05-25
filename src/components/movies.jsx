@@ -50,13 +50,12 @@ class Movies extends Component {
     this.setState({ sortColumn });
   };
 
-  render() {
+  getPagedData = () => {
     const {
       currentPage,
       pageSize,
       movies: allMovies,
       activeFilter,
-      genres,
       sortColumn,
     } = this.state;
 
@@ -73,6 +72,14 @@ class Movies extends Component {
     );
 
     const movies = paginate(sortedMovies, currentPage, pageSize);
+
+    return { movies, count };
+  };
+
+  render() {
+    const { currentPage, pageSize, movies: allMovies, genres } = this.state;
+
+    const { movies, count } = this.getPagedData();
 
     if (!allMovies.length)
       return (

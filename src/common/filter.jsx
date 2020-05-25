@@ -1,14 +1,12 @@
 import React from "react";
 
-const Filter = (props) => {
-  const {
-    onFilterApply,
-    activeFilter,
-    listItems,
-    valueProperty,
-    textProperty,
-  } = props;
-
+const Filter = ({
+  onFilterApply,
+  activeFilter,
+  listItems,
+  valueProperty,
+  textProperty,
+}) => {
   return (
     <ul className="list-group">
       {listItems.map((item) => (
