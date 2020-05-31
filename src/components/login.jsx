@@ -1,40 +1,31 @@
-import React, { Component } from "react";
-import Input from "./common/input";
+import React from "react";
+import Joi from "joi-browser";
+import Form from "./common/form";
 
-class Login extends Component {
+class Login extends Form {
   state = {
-    account: { username: "", password: "" },
+    data: { username: "", password: "" },
+    errors: {},
   };
 
-  handleChange = (e) => {
-    const account = { ...this.state.account };
-    account[e.currentTarget.name] = e.currentTarget.value;
-    this.setState({ account });
+  schema = {
+    username: Joi.string().required().label("Username"),
+    password: Joi.string().min(3).required().label("Password"),
   };
 
-  handleSubmit = (e) => {
-    e.preventDefault();
+  doSubmit = () => {
+    // save data on server.
+    console.log("submitted");
   };
 
   render() {
-    const { username, password } = this.state.account;
     return (
       <React.Fragment>
         <h1>Login</h1>
         <form onSubmit={this.handleSubmit} className="mt-4">
-          <Input
-            name="username"
-            onChange={this.handleChange}
-            label="Username"
-            value={username}
-          />
-          <Input
-            name="password"
-            onChange={this.handleChange}
-            label="Password"
-            value={password}
-          />
-          <button className="btn btn-primary mt-2">Login</button>
+          {this.renderInput("username", "Username")}
+          {this.renderInput("password", "Password", "password")}
+          {this.renderButton("Login")}
         </form>
       </React.Fragment>
     );
