@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { getMovies } from "../services/fakeMovieService";
+import { getMovies, deleteMovie } from "../services/fakeMovieService";
 import { getGenres } from "../services/fakeGenreService";
 import Pagination from "./common/pagination";
 import Filter from "./common/filter";
@@ -27,6 +27,7 @@ class Movies extends Component {
     if (currentPage > Math.ceil(movies.length / pageSize))
       currentPage = currentPage - 1;
     this.setState({ movies, currentPage });
+    deleteMovie(movie._id);
   };
 
   handleLikeClick = (movie) => {
