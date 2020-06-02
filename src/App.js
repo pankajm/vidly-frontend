@@ -4,7 +4,7 @@ import Customers from "./components/customers";
 import Rentals from "./components/rentals";
 import NotFound from "./components/not-found";
 import MoviesForm from "./components/moviesForm";
-import LoginForm from "./components/LoginForm";
+import LoginForm from "./components/loginForm";
 import RegisterForm from "./components/registerForm";
 import NavBar from "./components/navbar";
 import { Route, Redirect, Switch } from "react-router-dom";

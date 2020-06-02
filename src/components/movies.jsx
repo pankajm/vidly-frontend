@@ -6,6 +6,7 @@ import Filter from "./common/filter";
 import MoviesTable from "./moviesTable";
 import { paginate } from "../utils/paginate";
 import _ from "lodash";
+import SearchBar from "./common/searchBar";
 
 class Movies extends Component {
   state = {
@@ -15,6 +16,7 @@ class Movies extends Component {
     pageSize: 4,
     activeFilter: { _id: null, name: "All Genres" },
     sortColumn: { path: "title", order: "asc" },
+    searchText: "",
   };
 
   componentDidMount = () => {
@@ -44,11 +46,31 @@ class Movies extends Component {
 
   handleFilter = (filter) => {
     const activeFilter = { ...filter };
-    this.setState({ currentPage: 1, activeFilter });
+    const searchText = ""; // Clear search if filter is clicked
+    this.setState({ currentPage: 1, activeFilter, searchText });
   };
 
   handleSort = (sortColumn) => {
     this.setState({ sortColumn });
+  };
+
+  handleAddMovie = () => {
+    this.props.history.push("/movies/new");
+  };
+
+  handleSearch = (searchText) => {
+    this.setState({
+      searchText,
+      activeFilter: { _id: null, name: "All Genres" }, // apply all generes filter while searching,
+      currentPage: 1,
+      // in other words clear other filters
+    });
+  };
+
+  getSearchedMovies = () => {
+    const { movies, searchText } = this.state;
+    const regex = new RegExp(searchText, "i");
+    return movies.filter((m) => m.title.match(regex));
   };
 
   getPagedData = () => {
@@ -58,11 +80,14 @@ class Movies extends Component {
       movies: allMovies,
       activeFilter,
       sortColumn,
+      searchText,
     } = this.state;
 
     let filteredMovies = activeFilter._id
       ? allMovies.filter((m) => m.genre._id === activeFilter._id)
       : allMovies;
+
+    if (searchText) filteredMovies = this.getSearchedMovies();
 
     const { length: count } = filteredMovies;
 
@@ -96,9 +121,19 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
+          <button
+            onClick={this.handleAddMovie}
+            className="btn btn-primary mb-2"
+          >
+            New Movie
+          </button>
           <p style={{ fontSize: "20px" }}>
             Showing {count} movies in the database.
           </p>
+          <SearchBar
+            onSearch={this.handleSearch}
+            value={this.state.searchText}
+          ></SearchBar>
           <MoviesTable
             movies={movies}
             onLike={this.handleLikeClick}
