@@ -1,9 +1,10 @@
 import React from "react";
 import Form from "./common/form";
 import Joi from "joi-browser";
-import { getGenres } from "../services/fakeGenreService";
-import { getMovie, saveMovie } from "../services/fakeMovieService";
+import { getGenres } from "../services/genreService";
+import { getMovie, createMovie, updateMovie } from "../services/movieService";
 import _ from "lodash";
+import { toast } from "react-toastify";
 
 class MoviesForm extends Form {
   state = {
@@ -29,14 +30,28 @@ class MoviesForm extends Form {
       .label("Daily Rental Rate"),
   };
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.populateGenres();
+    await this.populateMovies();
+  }
+
+  async populateGenres() {
+    const { data: genres } = await getGenres();
+    this.setState({ genres });
+  }
+
+  async populateMovies() {
     const { history, match } = this.props;
-    const genres = getGenres();
     if (match.params._id !== "new") {
-      let movie = getMovie(match.params._id);
-      if (!movie) return history.replace("/not-found");
-      this.setState({ data: this.mapDataToView(movie), genres });
-    } else this.setState({ genres });
+      try {
+        let { data: movie } = await getMovie(match.params._id);
+        this.setState({ data: this.mapDataToView(movie) });
+      } catch (ex) {
+        if (ex.response && ex.response.status === 404) {
+          return history.replace("/not-found");
+        }
+      }
+    }
   }
 
   mapDataToView(data) {
@@ -50,10 +65,25 @@ class MoviesForm extends Form {
     return movie;
   }
 
-  doSubmit = () => {
+  doSubmit = async () => {
     // save movie in database
     const movie = { ...this.state.data };
-    saveMovie(movie);
+    if (!movie._id) await createMovie(movie);
+    else {
+      const updatedMovie = _.pick(movie, [
+        "title",
+        "genreId",
+        "numberInStock",
+        "dailyRentalRate",
+      ]);
+      try {
+        await updateMovie(movie._id, updatedMovie);
+      } catch (ex) {
+        if (ex.response && ex.response.status === 404) {
+          toast("Movie not found. Might have been deleted already.");
+        }
+      }
+    }
     this.props.history.push("/movies");
   };
 
