@@ -114,13 +114,14 @@ class Movies extends Component {
 
   render() {
     const { currentPage, pageSize, movies: allMovies, genres } = this.state;
+    const { user } = this.props;
 
     const { movies, count } = this.getPagedData();
 
-    if (!allMovies.length)
-      return (
-        <p style={{ fontSize: "20px" }}>There are no movies in the database.</p>
-      );
+    // if (!allMovies.length)
+    //   return (
+    //     <p style={{ fontSize: "20px" }}>There are no movies in the database.</p>
+    //   );
     return (
       <div className="row">
         <div className="col-2">
@@ -131,12 +132,14 @@ class Movies extends Component {
           />
         </div>
         <div className="col">
-          <button
-            onClick={this.handleAddMovie}
-            className="btn btn-primary mb-2"
-          >
-            New Movie
-          </button>
+          {user && (
+            <button
+              onClick={this.handleAddMovie}
+              className="btn btn-primary mb-2"
+            >
+              New Movie
+            </button>
+          )}
           <p style={{ fontSize: "20px" }}>
             Showing {count} movies in the database.
           </p>

@@ -67,24 +67,29 @@ class MoviesForm extends Form {
 
   doSubmit = async () => {
     // save movie in database
-    const movie = { ...this.state.data };
-    if (!movie._id) await createMovie(movie);
-    else {
-      const updatedMovie = _.pick(movie, [
-        "title",
-        "genreId",
-        "numberInStock",
-        "dailyRentalRate",
-      ]);
-      try {
-        await updateMovie(movie._id, updatedMovie);
-      } catch (ex) {
-        if (ex.response && ex.response.status === 404) {
-          toast("Movie not found. Might have been deleted already.");
+    try {
+      const movie = { ...this.state.data };
+      if (!movie._id) await createMovie(movie);
+      else {
+        const updatedMovie = _.pick(movie, [
+          "title",
+          "genreId",
+          "numberInStock",
+          "dailyRentalRate",
+        ]);
+        try {
+          await updateMovie(movie._id, updatedMovie);
+        } catch (ex) {
+          if (ex.response && ex.response.status === 404) {
+            toast("Movie not found. Might have been deleted already.");
+          }
         }
       }
+      this.props.history.push("/movies");
+    } catch (ex) {
+      if (ex.response && [400, 401].includes(ex.response.status))
+        toast("Action not permited");
     }
-    this.props.history.push("/movies");
   };
 
   render() {
